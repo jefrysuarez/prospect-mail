@@ -31,6 +31,11 @@ if (process.platform === "linux") {
 //Store commandline for global purpose
 global.cmdLine = process.argv;
 
+// Compatibility switches (passkeys, Vulkan). See compat.js. When the Vulkan
+// switch has to be added the app relaunches itself and this process exits.
+const { applyCompatibilitySwitches } = require("./compat");
+const relaunching = applyCompatibilitySwitches();
+
 class ProspectMail {
   constructor() {
     this.mailController = null;
@@ -44,7 +49,12 @@ class ProspectMail {
       app.quit();
     } else {
       app.on("second-instance", (event, commandLine, workingDirectory) => {
-        if (this.mailController) this.mailController.show();
+        if (!this.mailController) return;
+        // "prospect-mail --new-window" always opens another window. A plain
+        // relaunch opens one too when the main window is already visible
+        // (secondInstanceOpensNewWindow), otherwise it raises the main window.
+        const forceNewWindow = commandLine.includes("--new-window");
+        this.mailController.handleSecondInstance(forceNewWindow);
       });
 
       this.initApp();
@@ -75,4 +85,4 @@ class ProspectMail {
   }
 }
 
-new ProspectMail().init();
+if (!relaunching) new ProspectMail().init();

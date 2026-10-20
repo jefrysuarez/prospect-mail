@@ -46,7 +46,33 @@ const settings = new Store({
     //   "inbox"     — the Inbox folder only (default, original behaviour)
     //   "favorites" — sum of unread across the Outlook Favorites folders
     unreadNotificationSource: "inbox",
-    customBrowserPath: undefined
+    customBrowserPath: undefined,
+
+    // ---- Multi-window & zoom (fork additions) ----
+    // Zoom factor for the whole Outlook UI (1 = 100%). Changed with Ctrl +/-,
+    // Ctrl+0 or Ctrl+mouse wheel and persisted across restarts.
+    zoomFactor: 1,
+    // window.open() calls that target an Outlook URL (e.g. Calendar context
+    // menu > "Open in new window") open a new app window instead of replacing
+    // the content of the current one.
+    openOutlookLinksInNewWindow: true,
+    // Launching the app again while it is already running opens another
+    // window when the main window is visible, instead of only raising it.
+    // "prospect-mail --new-window" always opens a new window.
+    secondInstanceOpensNewWindow: true,
+
+    // ---- Compatibility (changes need an app restart) ----
+    // Disable WebAuthn / passkeys in the embedded browser. Electron on Linux
+    // has no passkey UI, so accounts with a registered passkey hang forever on
+    // Microsoft's "Face, fingerprint, PIN or security key" page. With WebAuthn
+    // disabled Microsoft falls back to password sign-in.
+    disableWebAuthn: process.platform === "linux",
+    // Rendering backend on Linux: "auto" | "wayland" | "x11".
+    // Native Wayland on NVIDIA crashes the GPU process repeatedly and leaves
+    // Chromium in slow software rendering; "auto" uses X11 (XWayland) when
+    // the NVIDIA driver is loaded in a Wayland session and Electron's default
+    // otherwise. The other values force a backend.
+    renderingBackend: "auto",
   }
 });
 

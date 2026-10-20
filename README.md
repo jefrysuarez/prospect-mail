@@ -17,6 +17,33 @@ Available for Linux, Windows (10+) and macOS.
 > This project has NO DIRECT AFFILIATION with Microsoft, Microsoft 365 or any
 > product made by Microsoft.
 
+## About this fork
+
+This is a fork of [julian-alarcon/prospect-mail](https://github.com/julian-alarcon/prospect-mail)
+that makes the app behave more like the "new Outlook" desktop client on
+Windows. On top of upstream it adds:
+
+- **Whole-UI zoom**: `Ctrl` `+` / `Ctrl` `-` / `Ctrl` `0` and `Ctrl` + mouse
+  wheel zoom the entire Outlook interface (not only the reading pane). The
+  zoom level is remembered and shared by every window. Also in the tray menu
+  and the right-click menu.
+- **Multiple windows**: `Ctrl` `Shift` `N`, tray menu "New Window",
+  `prospect-mail --new-window`, or simply launching the app again while it is
+  open, each open another Outlook window. Outlook's own "Open in new window"
+  (e.g. right-click on Calendar) now opens a real separate window instead of
+  replacing the current one.
+- **Compatibility toggles in the GUI** (tray menu > Settings > Compatibility),
+  so nobody needs to discover command-line flags:
+  - *Disable Passkey Sign-in*: Electron on Linux has no passkey (WebAuthn) UI,
+    so accounts with a registered passkey hang forever on Microsoft's
+    "Face, fingerprint, PIN or security key" page. With this on (default on
+    Linux) Microsoft asks for the password instead.
+  - *Rendering Backend* (Auto / Wayland / X11): native Wayland on NVIDIA
+    crashes Chromium's GPU process repeatedly and leaves the app in slow
+    software rendering. *Auto* (default) runs through XWayland when the NVIDIA
+    driver is loaded in a Wayland session and keeps Electron's default
+    otherwise.
+
 ## Download
 
 The application can be downloaded from [release page](https://github.com/julian-alarcon/prospect-mail/releases).
@@ -74,6 +101,12 @@ flag `prospect-mail --minimized`
   on wake-from-sleep; if the Outlook session expires, the app auto-reloads to
   silently re-authenticate via SSO, and falls back to a desktop notification if
   re-login is still needed
+- Zoom the whole UI with `Ctrl +`, `Ctrl -`, `Ctrl 0` or `Ctrl` + mouse wheel
+- Multiple windows: `Ctrl Shift N`, tray menu "New Window",
+  `prospect-mail --new-window`, launching the app again, or Outlook's own
+  "Open in new window"
+- GUI toggles for passkey sign-in and the rendering backend (tray menu >
+  Settings > Compatibility)
 
 ## Settings
 
@@ -130,6 +163,11 @@ need to click in "Reload settings" to apply changes.
 | `showUnreadNotifications` | Show the "new messages" desktop notification (calendar reminders are unaffected; also available via tray menu) | `true`                  |
 | `unreadNotificationSource` | Which folders drive the unread badge and new-mail notifications: `"inbox"` (Inbox only) or `"favorites"` (sum of unread across your Outlook Favorites) | `"inbox"`     |
 | `customBrowserPath` | Custom browser for external links. Use command name (e.g., `"firefox"`) or full path        | System default                    |
+| `zoomFactor` | Zoom factor of the whole UI (`1` = 100%). Changed with `Ctrl +/-/0` or `Ctrl` + wheel | `1` |
+| `openOutlookLinksInNewWindow` | Outlook's "Open in new window" opens a separate app window (`false` = load in the current window, the old behaviour) | `true` |
+| `secondInstanceOpensNewWindow` | Launching the app while it runs opens another window when the main window is visible (`false` = only raise the main window). `--new-window` always opens one | `true` |
+| `disableWebAuthn` | Disable passkeys (WebAuthn) so Microsoft falls back to password sign-in. Needs restart. Also in tray menu > Settings > Compatibility | `true` on Linux |
+| `renderingBackend` | Linux rendering backend: `"auto"` (X11 when the NVIDIA driver is loaded in a Wayland session, otherwise Electron's default), `"wayland"` or `"x11"`. Needs restart. Also in tray menu > Settings > Compatibility | `"auto"` |
 
 > [!NOTE]
 > Settings from before 1.3.0 are migrated automatically on first launch:
